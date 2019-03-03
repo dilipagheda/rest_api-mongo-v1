@@ -1,13 +1,18 @@
 /* Declare all constants and variables here */
 var express = require('express');
 var router = express.Router();
-
+const User = require('../models/user');
 
 /* GET /api/users 200 - Returns the currently authenticated user
  */
 router.get('/', function(req, res, next) {
-
-  
+    User.find({},function(err,users){
+        if(err){
+            console.log(err);
+        }else{
+            res.json(users);
+        }
+    });
 });
 
 

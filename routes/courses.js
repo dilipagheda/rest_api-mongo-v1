@@ -1,11 +1,15 @@
 /* Declare all constants and variables here */
 var express = require('express');
 var router = express.Router();
+const Course = require('../models/course');
 
 /* GET /api/courses 200 - Returns a list of courses (including the user that owns each course) */
 router.get('/', function(req, res, next) {
-
-  
+    Course.find({})
+        .populate('user')
+        .exec(function(err,courses){
+            res.json(courses);
+        });
 });
 
 /* GET /api/courses/:id 200 - Returns a the course (including the user that owns the course) for the provided course ID */
