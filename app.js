@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const routes = require('./routes/index');
 const courses = require('./routes/courses');
 const users = require('./routes/users');
+const mongoose = require('mongoose');
 
 
 // variable to enable global error logging
@@ -55,7 +56,15 @@ app.use((err, req, res, next) => {
 // set our port
 app.set('port', process.env.PORT || 5000);
 
-// start listening on our port
-const server = app.listen(app.get('port'), () => {
-  console.log(`Express server is listening on port ${server.address().port}`);
-});
+mongoose.connect('mongodb://localhost/fsjstd-restapi')
+.then(function(){
+  console.log("Database is connected successfully!");
+  app.listen(app.get('port'), () => {
+    console.log(`Express server is listening on port ${server.address().port}`);
+  });
+})
+.catch(function(err){
+  console.log("Error connecting database!"+err);
+
+})
+
