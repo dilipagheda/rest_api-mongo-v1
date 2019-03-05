@@ -4,12 +4,10 @@ const bodyParser = require('body-parser');
 // load modules
 const express = require('express');
 const morgan = require('morgan');
-const routes = require('./routes/index');
 const courses = require('./routes/courses');
 const users = require('./routes/users');
 const mongoose = require('mongoose');
 
-const Course = require('./models/course');
 
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
@@ -17,13 +15,18 @@ const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'tr
 // create the Express app
 const app = express();
 
+// support parsing of application/json type post data
+app.use(bodyParser.json());
+
+//support parsing of application/x-www-form-urlencoded post data
+app.use(bodyParser.urlencoded({ extended: true }));
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended:false}));
 
 // TODO setup your api routes here
 /* Add routes */
-app.use('/', routes);
+// app.use('/', routes);
 app.use('/api/courses', courses);
 app.use('/api/users', users);
 
