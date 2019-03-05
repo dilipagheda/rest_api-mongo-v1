@@ -42,8 +42,57 @@ router.post('/', authenticateUser , function(req, res, next) {
 });
 
 /* PUT /api/courses/:id 204 - Updates a course and returns no content */
-router.put('/:id', function(req, res, next) {
+router.put('/:id', authenticateUser ,function(req, res, next) {
+    const data = {title:req.body.title,
+                description:req.body.description,
+                estimatedTime:req.body.estimatedTime,
+                materialsNeeded:req.body.materialsNeeded
+            };
 
+    
+    console.log("user id:"+req.currentUser._id);
+    Course.findById(req.params.id)
+          .then(course=>{
+            console.log(course);
+            if(req.currentUser._id.equals(course.user)){
+                console.log("equals");
+                course.title = req.body.title;
+                course.description = req.body.description;
+                course.estimatedTime=req.body.estimatedTime;
+                course.materialsNeeded=req.body.materialsNeeded;
+                return course.save();
+                
+            }else{
+                console.log("not equals");
+                reject(new Error());
+            }
+          })
+          .then((result)=>{
+                console.log("result:"+result);
+                res.status(204).end();
+          })
+          .catch(err=>{
+            res.status(404).json({
+                message: 'Course not found for this user!',
+              }); 
+          });
+
+    // Course.updateMany({_id:req.params.id, user:req.currentUser._id},{...data} , function(err,course){
+    //     if(err){
+    //         console.log(err);
+    //     }else{
+    //         console.log("course:"+ JSON.stringify(course));
+    //         if(course.nModified>0){
+    //             res.status(204).end();
+    //         }else{
+    //             res.status(404).json({
+    //                 message: 'Course not found for this user!',
+    //               });
+    //         }
+            
+            
+    //     }
+    // });
 });
 
 /*DELETE /api/courses/:id 204 - Deletes a course and returns no content*/

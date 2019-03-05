@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const courses = require('./routes/courses');
 const users = require('./routes/users');
 const mongoose = require('mongoose');
+mongoose.set('debug', true);
 
 
 // variable to enable global error logging
