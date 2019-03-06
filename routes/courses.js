@@ -22,6 +22,8 @@ router.get('/:id', function(req, res, next) {
     });
 });
 
+
+
 /* POST /api/courses 201 - Creates a course, sets the Location header to the URI for the course, and returns no content
  */
 router.post('/', authenticateUser , function(req, res, next) {
@@ -50,53 +52,41 @@ router.put('/:id', authenticateUser ,function(req, res, next) {
             };
 
     
-    console.log("user id:"+req.currentUser._id);
-    Course.findById(req.params.id)
-          .then(course=>{
-            console.log(course);
-            if(req.currentUser._id.equals(course.user)){
-                console.log("equals");
-                course.title = req.body.title;
-                course.description = req.body.description;
-                course.estimatedTime=req.body.estimatedTime;
-                course.materialsNeeded=req.body.materialsNeeded;
-                return course.save();
-                
-            }else{
-                console.log("not equals");
-                reject(new Error());
-            }
-          })
-          .then((result)=>{
-                console.log("result:"+result);
+    Course.updateMany({_id:req.params.id, user:req.currentUser._id},{...data},function(err,result){
+        if(err){
+            next(err);
+        }else{
+            console.log("updated:"+JSON.stringify(result));
+            if(result.nModified>0){
                 res.status(204).end();
-          })
-          .catch(err=>{
-            res.status(404).json({
-                message: 'Course not found for this user!',
-              }); 
-          });
+            }else{
+                res.status(404).json({
+                    message: 'Course not found for this user!',
+                  }); 
+            }
+        }
+    });
 
-    // Course.updateMany({_id:req.params.id, user:req.currentUser._id},{...data} , function(err,course){
-    //     if(err){
-    //         console.log(err);
-    //     }else{
-    //         console.log("course:"+ JSON.stringify(course));
-    //         if(course.nModified>0){
-    //             res.status(204).end();
-    //         }else{
-    //             res.status(404).json({
-    //                 message: 'Course not found for this user!',
-    //               });
-    //         }
-            
-            
-    //     }
-    // });
+
 });
 
 /*DELETE /api/courses/:id 204 - Deletes a course and returns no content*/
-router.delete('/:id', function(req, res, next) {
+router.delete('/:id', authenticateUser ,function(req, res, next) {
+
+
+    Course.deleteMany({_id:req.params.id,user:req.currentUser._id}, function(err,result){
+        if(err){
+            next(err);
+        }else{
+            if(result.deletedCount>0){
+                res.status(204).end();
+            }else{
+                res.status(404).json({
+                    message: 'Course not found for this user!',
+                  }); 
+            }
+        }
+    });
 
 });
 
