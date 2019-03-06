@@ -8,8 +8,8 @@ const courseSchema = new Schema({
         type:ObjectId,
         ref:'User'
     },
-    title: String,
-    description: String,
+    title: {type:String,required:true},
+    description: {type:String,required:true},
     estimatedTime: String,
     materialsNeeded:String
 });

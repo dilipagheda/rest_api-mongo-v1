@@ -3,7 +3,6 @@ var express = require('express');
 var router = express.Router();
 const Course = require('../models/course');
 const authenticateUser = require('../middleware/index');
-const { check, validationResult } = require('express-validator/check');
 
 /* GET /api/courses 200 - Returns a list of courses (including the user that owns each course) */
 router.get('/', function(req, res, next) {
@@ -27,13 +26,14 @@ router.get('/:id', function(req, res, next) {
 
 /* POST /api/courses 201 - Creates a course, sets the Location header to the URI for the course, and returns no content
  */
-router.post('/', authenticateUser , [ check('title').exists(),
-                                      check('description').exists()] ,function(req, res, next) {
-
-    // Finds the validation errors in this request and wraps them in an object with handy functions
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+router.post('/', authenticateUser ,function(req, res, next) {
+    // Get the user from the request body & Validate against Schema
+    const course = new Course();
+    course.title = req.body.title;
+    course.description = req.body.description;
+    const errors = course.validateSync();
+    if(errors){
+        return next(errors);
     }
 
   Course.create({
