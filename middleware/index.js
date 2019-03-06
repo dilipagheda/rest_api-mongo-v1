@@ -42,4 +42,24 @@ const authenticateUser = (req, res, next) => {
     
 }
 
-module.exports = authenticateUser;
+const checkDuplicateEmail = (req,res,next) => {
+    const email = req.body.emailAddress;
+    User.find({emailAddress:email})
+        .then(users=>{
+            if(users!==undefined && users.length>0){
+                let err=new Error();
+                err.status = 400;
+                err.message = "Duplicate Email!";
+                return next(err);
+            }else{
+                next();
+            }
+        })
+        .catch(err=>{
+            next(err);
+        });
+
+}
+
+module.exports.authenticateUser = authenticateUser;
+module.exports.checkDuplicateEmail = checkDuplicateEmail;

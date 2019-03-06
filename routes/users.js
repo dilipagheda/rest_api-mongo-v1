@@ -3,35 +3,20 @@ var express = require('express');
 var router = express.Router();
 const User = require('../models/user');
 const bcryptjs = require('bcryptjs');
-const authenticateUser = require('../middleware/index');
+const {authenticateUser,checkDuplicateEmail} = require('../middleware/index');
 const { check, validationResult } = require('express-validator/check');
+
 /* GET /api/users 200 - Returns the currently authenticated user
  */
 router.get('/', authenticateUser, function(req, res, next) {
     res.json(req.currentUser);
 });
-
-
-/* POST /api/users 201 - Creates a user, sets the Location header to "/", and returns no content */
-router.post('/' , check('emailAddress').isEmail().withMessage("Email address is not valid!") , function(req,res,next){
-
-    const email = req.body.emailAddress;
-    User.find({emailAddress:email})
-        .then(users=>{
-            if(users!==undefined && users.length>0){
-                let err=new Error();
-                err.status = 400;
-                err.message = "Duplicate Email!";
-                return next(err);
-            }else{
-                next();
-            }
-        })
-        .catch(err=>{
-
-        });
-
-} , function(req, res, next) {
+/* POST /api/users 201 - Creates a user, sets the Location header to "/", and returns no content 
+ Validations: Email should be of correct format
+              Email should not have been used.
+ Hash the password before storing
+*/
+router.post('/' , check('emailAddress').isEmail().withMessage("Email address is not valid!") , checkDuplicateEmail  , function(req, res, next) {
 
     //Email format validation
     const err = validationResult(req);
@@ -61,18 +46,14 @@ router.post('/' , check('emailAddress').isEmail().withMessage("Email address is 
     User.create(user)
         .then((user)=>{
             //saved
-            console.log("Saved:"+user);
+            //Set the location header to /
+            res.setHeader("Location","/");
+            // Set the status to 201 Created and end the response.
+            return res.status(201).end();
         })
         .catch((err)=>{
-            console.log("Error while saving!"+err);
+            return next(err);
         });
-
-    //Set the location header to /
-    res.setHeader("Location","/");
-    // Set the status to 201 Created and end the response.
-    return res.status(201).end();
 });
-
-
 
 module.exports = router;
