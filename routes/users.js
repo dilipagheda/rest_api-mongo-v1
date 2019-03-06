@@ -4,7 +4,7 @@ var router = express.Router();
 const User = require('../models/user');
 const bcryptjs = require('bcryptjs');
 const authenticateUser = require('../middleware/index');
-
+const { check, validationResult } = require('express-validator/check');
 /* GET /api/users 200 - Returns the currently authenticated user
  */
 router.get('/', authenticateUser, function(req, res, next) {
@@ -13,7 +13,17 @@ router.get('/', authenticateUser, function(req, res, next) {
 
 
 /* POST /api/users 201 - Creates a user, sets the Location header to "/", and returns no content */
-router.post('/' , function(req, res, next) {
+router.post('/' , [ check('emailAddress').isEmail()] , function(req, res, next) {
+
+    //Email format validation
+    const err = validationResult(req);
+    if (!err.isEmpty()) {
+        console.log(JSON.stringify(err.array()));
+        let e = new Error();
+        e.message = err.array();
+        e.status = 400;
+        return  next(e);
+    }
 
     // Get the user from the request body & Validate against Schema
     const user = new User();
