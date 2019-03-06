@@ -11,8 +11,15 @@ To complete this project, you’ll use your knowledge of REST API design, Node.j
 1. Clone this project using this link:
 https://github.com/dilipagheda/rest_api-mongo-v1.git
 2. Run `npm install` which will download all project dependancies
-3. Run `npm start` to start the project.
-4. Open POSTMAN and hit endpoints using `localhost:3000`
+3. Make sure that mongoDB is installed and running
+4. If your mongoDB is running on different port or machine then changes this line in `database.js`
+```    
+this.context = new Context('mongodb://localhost:27017', enableLogging);
+```
+5. Run node ./seed to create database and load some data.
+6. Run `npm start` to start the project.
+7. Open POSTMAN and hit endpoints using `localhost:3000`
+8. Have fun!
 
 ## Endpoints
 
