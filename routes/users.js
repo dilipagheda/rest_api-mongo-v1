@@ -13,7 +13,25 @@ router.get('/', authenticateUser, function(req, res, next) {
 
 
 /* POST /api/users 201 - Creates a user, sets the Location header to "/", and returns no content */
-router.post('/' , [ check('emailAddress').isEmail()] , function(req, res, next) {
+router.post('/' , check('emailAddress').isEmail().withMessage("Email address is not valid!") , function(req,res,next){
+
+    const email = req.body.emailAddress;
+    User.find({emailAddress:email})
+        .then(users=>{
+            if(users!==undefined && users.length>0){
+                let err=new Error();
+                err.status = 400;
+                err.message = "Duplicate Email!";
+                return next(err);
+            }else{
+                next();
+            }
+        })
+        .catch(err=>{
+
+        });
+
+} , function(req, res, next) {
 
     //Email format validation
     const err = validationResult(req);

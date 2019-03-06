@@ -7,7 +7,7 @@ const authenticateUser = require('../middleware/index');
 /* GET /api/courses 200 - Returns a list of courses (including the user that owns each course) */
 router.get('/', function(req, res, next) {
     Course.find({})
-        .populate('user')
+        .populate({path:'user', select:'firstName lastName'})
         .exec(function(err,courses){
             res.json(courses);
         });
@@ -16,7 +16,7 @@ router.get('/', function(req, res, next) {
 /* GET /api/courses/:id 200 - Returns a the course (including the user that owns the course) for the provided course ID */
 router.get('/:id', function(req, res, next) {
     Course.findById(req.params.id)
-    .populate('user')
+    .populate({path:'user', select:'firstName lastName'})
     .exec(function(err,courses){
         res.json(courses);
     });
@@ -70,7 +70,7 @@ router.put('/:id', authenticateUser ,function(req, res, next) {
             if(result.nModified>0){
                 res.status(204).end();
             }else{
-                res.status(404).json({
+                res.status(403).json({
                     message: 'Course not found for this user!',
                   }); 
             }
@@ -91,7 +91,7 @@ router.delete('/:id', authenticateUser ,function(req, res, next) {
             if(result.deletedCount>0){
                 res.status(204).end();
             }else{
-                res.status(404).json({
+                res.status(403).json({
                     message: 'Course not found for this user!',
                   }); 
             }
