@@ -8,23 +8,23 @@ const authenticateUser = require('../middleware/index');
 /* GET /api/users 200 - Returns the currently authenticated user
  */
 router.get('/', authenticateUser, function(req, res, next) {
-    // User.find({},function(err,users){
-    //     if(err){
-    //         console.log(err);
-    //     }else{
-    //         res.json(users);
-    //     }
-    // });
-    console.log("outside:"+req.currentUser);
     res.json(req.currentUser);
 });
 
 
 /* POST /api/users 201 - Creates a user, sets the Location header to "/", and returns no content */
-router.post('/', function(req, res, next) {
-    // Get the user from the request body.
-    const user = req.body;
-    
+router.post('/' , function(req, res, next) {
+
+    // Get the user from the request body & Validate against Schema
+    const user = new User();
+    user.firstName = req.body.firstName;
+    user.lastName = req.body.lastName;
+    user.emailAddress = req.body.emailAddress;
+    user.password = req.body.password;
+    const errors = user.validateSync();
+    if(errors){
+        return next(errors);
+    }
     // Hash the new user's password.
     user.password = bcryptjs.hashSync(user.password);
     
