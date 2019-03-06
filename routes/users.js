@@ -23,6 +23,7 @@ router.post('/' , function(req, res, next) {
     user.password = req.body.password;
     const errors = user.validateSync();
     if(errors){
+        errors.status=400;
         return next(errors);
     }
     // Hash the new user's password.

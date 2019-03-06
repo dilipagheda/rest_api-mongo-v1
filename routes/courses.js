@@ -33,6 +33,7 @@ router.post('/', authenticateUser ,function(req, res, next) {
     course.description = req.body.description;
     const errors = course.validateSync();
     if(errors){
+        errors.status=400;
         return next(errors);
     }
 
